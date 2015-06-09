@@ -22,13 +22,13 @@ pre > code {
 # Simple markdown parser in Blogger<br>
 <b>TL;DR</b> I wrote a small script that let me use few simple markdown features in Blogger, the code can be found on <a href="https://github.com/ValYouW/simple-md-blogger">GitHub</a><br>
 When writing a blog post it is much easier to insert code blocks using 3 backticks `\`\`\`` (GitHub Flavored Markdown), for example:<br>
-<pre>
-\`\`\`js
+```js
+```js
 function foo() {
     console.log('Im foo !!');
 }
-\`\`\`
-</pre>
+\```
+```
 Or, adding code quotes using a single backtick, like: `\`quote\``.
 <br>
 Or, adding titles using hashes, like: `# This is a title`<br>
@@ -84,7 +84,7 @@ This can be solved by escaping all backticks within the code block, but lets try
 ## Parsing line-by-line<br>
 We can take our post html, split it into array using `\n` (so each line is a cell in the array), then we loop thru all
 the lines and do replacements, if we identify that there is a code block starting, we can mark it and not do anything
-until the code block closes.
+until the code block closes (actually there is one replace we should do in code block, and that is if we have an escaped end block backticks, `\\`\`\``)
 ```js
 function parseWithArray(post) {
 	// See regex explanations in `parseWithRegex`, it is quite similar

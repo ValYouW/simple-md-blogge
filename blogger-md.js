@@ -56,6 +56,7 @@
 		var brRegex = /<br>/g;
 		var beginCodeRegex = /^```([a-zA-Z]+)?(?:<br>)?/;
 		var endCodeRegex = /^```(?:\s)*$/;
+		var escapedEndCodeRegex = /^\\```$/;
 		var codeQuoteRegex = /`(.*?[^\\])`/g;
 		var escapedCodeQuoteRegex = /\\`/g;
 		var titleRegex = /^[\s]*([#]+)(?:\s)*(.*?)(?:<br>)?$/;
@@ -76,6 +77,8 @@
 				if (endCodeRegex.test(line)) {
 					incode = false;
 					line = '</code></pre>';
+				} else {
+					line = line.replace(escapedEndCodeRegex, '```');
 				}
 				lines[j] = line;
 				continue;
