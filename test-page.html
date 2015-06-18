@@ -15,7 +15,7 @@ pre > code {
 <script type="text/javascript" src="blogger-md.js"></script>
 <script type="text/javascript">
     window.onload = function() {
-	    window.VYW.parse(null, '');
+	    window.VYW.parse(null);
 	}
 </script>
 <div class="post-body">
@@ -31,9 +31,15 @@ function foo() {
 ```
 Or, adding code quotes using a single backtick, like: `\`quote\``.
 <br>
-Or, adding titles using hashes, like: `# This is a title`<br>
-This can be done by parsing the html and do some replacements of the text with html tags, there are 2 methods I came up with.
+There is a `bug` if we have single escaped backtick \` followed by real `backtick` on the same line
 <br>
+If there are only single escaped backticks \` then that's ok \`, ok?
+<br>
+Or, adding titles using hashes, like: `# This is a title`
+<br>
+There is a [support for links](http://www.google.com){_blank}, by using: \[text\](url){target}
+<br>
+This can be done by parsing the html and do some replacements of the text with html tags, there are 2 methods I came up with.
 ## Using Regex<br>
 Here is one options with `RegExp` only<br>
 ```js

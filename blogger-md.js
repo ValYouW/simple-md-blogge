@@ -1,15 +1,15 @@
 (function(win) {
 	var POSTS_CLASS = '.post-body';
 
-	function parse(postsClass, method) {
+	function parse(postsClass) {
 		postsClass = (typeof postsClass === 'string' && postsClass) ? postsClass : POSTS_CLASS;
-		var parseMethod = (typeof method === 'string' && method === 'regex') ? parseWithRegex : parseWithArray;
 		var posts = document.querySelectorAll(postsClass);
 		for (var i = 0; i < posts.length; ++i) {
-			parseMethod(posts[i]);
+			parseWithArray(posts[i]);
 		}
 	}
 
+	/** NOTE: THIS METHOD IS NOT MAINTAINED ANYMORE **/
 	function parseWithRegex(post) {
 		var html = post.innerHTML;
 
@@ -52,14 +52,29 @@
 	}
 
 	function parseWithArray(post) {
-		// See regex explanations in `parseWithRegex`, it is quite similar
 		var brRegex = /<br>/g;
+
+		// Line starting with ``` and an optional lang specified, can have optional <br>
 		var beginCodeRegex = /^```([a-zA-Z]+)?(?:<br>)?/;
-		var endCodeRegex = /^```(?:\s)*$/;
-		var escapedEndCodeRegex = /^\\```$/;
+		// Line starts with ``` and nothing but spaces till the end
+		var endCodeRegex = /^```[\s]*$/;
+		// Escaped code is \``` and nothing till the end
+		var escapedEndCodeRegex = /^\\```[\s]*$/;
+		// Anything between backticks as long as the char before the closing backtick is not a "\" (escaped backtick)
 		var codeQuoteRegex = /`(.*?[^\\])`/g;
+		// Escaped backtick: \`
 		var escapedCodeQuoteRegex = /\\`/g;
-		var titleRegex = /^[\s]*([#]+)(?:\s)*(.*?)(?:<br>)?$/;
+
+		// \[([^\]]+[^\\])] - Anything that is between brackets as long as it is not "]" and there is no "\" before the closing bracket (escaped bracket)
+		// \((.*?)\) - Anything between round brackets
+		// (?:{(.*?)})? - Optionally can have some text between curly brackets
+		var linksRegex=/\[([^\]]+[^\\])]\((.*?)\)(?:{(.*?)})?/g;
+
+		// Match any escaped brackets "\[" or "\]"
+		var escapedLinksRegex = /\\(\[|])/g;
+
+		// Line can start with spaces, then comes multiple "#", then can have spaces, then any text, and optional <br> before line ends
+		var titleRegex = /^[\s]*([#]+)[\s]*(.*?)(?:<br>)?$/;
 
 		var html = post.innerHTML;
 		var lines = html.split('\n');
@@ -109,7 +124,15 @@
 			line = line.replace(codeQuoteRegex, '<code>$1</code>');
 
 			// Next replace all escaped backtick (\`) with backtick
-			lines[j] = line.replace(escapedCodeQuoteRegex, '`');
+			line = line.replace(escapedCodeQuoteRegex, '`');
+
+			// Next replace links
+			line = line.replace(linksRegex, '<a href="$2" target="$3">$1</a>');
+
+			// Next replace all escaped brackets \[\] with brackets
+			line = line.replace(escapedLinksRegex, '$1');
+
+			lines[j] = line;
 		}
 		post.innerHTML = lines.filter(function(l) {return l !== null;}).join('\n');
 	}
