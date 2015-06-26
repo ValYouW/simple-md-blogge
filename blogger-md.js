@@ -53,6 +53,7 @@
 
 	function parseWithArray(post) {
 		var brRegex = /<br>/g;
+		var emptyLineRegex = /^[\s]*(?:<br>)?$/;
 
 		// Line starting with ``` and an optional lang specified, can have optional <br>
 		var beginCodeRegex = /^```([a-zA-Z]+)?(?:<br>)?/;
@@ -116,6 +117,11 @@
 
 			// Replace titles (#)
 			line = line.replace(titleRegex, function(match, hashes, title) {
+				// If the line before a title is empty we remove it
+				if (j > 0 && emptyLineRegex.test(lines[j-1])) {
+					lines[j-1] = null;
+				}
+
 				var headerLevel = hashes.length;
 				return '<h' + headerLevel + '>' + title + '</h' + headerLevel + '>'
 			});
